@@ -11,7 +11,6 @@ RULES = [
             re.IGNORECASE
         ),
     },
-
     {
         "id": "XSS-001",
         "category": "cross_site_scripting",
@@ -21,7 +20,6 @@ RULES = [
             re.IGNORECASE
         ),
     },
-
     {
         "id": "PATH-001",
         "category": "directory_traversal",
@@ -30,13 +28,36 @@ RULES = [
             r"\.\.[\\/]",
             re.IGNORECASE
         ),
-    }
+    },
+    {
+        "id": "CMDI-001",
+        "category": "command_injection",
+        "description": "Shell command chaining indicator",
+        "pattern": re.compile(
+            r"(?:;|\|\||&&)\s*(?:whoami|id|uname)\b",
+            re.IGNORECASE
+        ),
+    },
 ]
 
 
-def inspect_request(path, raw_query_string):
-    """Return the first matching WAF rule, or None when the request is safe."""
-    request_data = unquote_plus(f"{path}?{raw_query_string}")
+def inspect_request(path, raw_query_string, headers=None, body=""):
+    """Return the first matching WAF rule, or None for a safe request."""
+    decoded_query = unquote_plus(raw_query_string)
+    decoded_body = unquote_plus(body)
+
+    header_text = ""
+    if headers:
+        header_text = "\n".join(
+            f"{name}: {value}" for name, value in headers.items()
+        )
+
+    request_data = "\n".join([
+        path,
+        decoded_query,
+        header_text,
+        decoded_body,
+    ])
 
     for rule in RULES:
         if rule["pattern"].search(request_data):

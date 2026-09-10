@@ -32,7 +32,6 @@ def get_client_ip():
 
 
 def is_rate_limited(client_ip):
-    """Return True when an IP exceeds the request limit in the time window."""
     current_time = monotonic()
     cutoff_time = current_time - RATE_LIMIT_WINDOW_SECONDS
 
@@ -77,7 +76,14 @@ def inspect_incoming_request():
         ), 429
 
     raw_query = request.query_string.decode("utf-8", errors="replace")
-    matched_rule = inspect_request(request.path, raw_query)
+    raw_body = request.get_data(cache=True, as_text=True)
+
+    matched_rule = inspect_request(
+        request.path,
+        raw_query,
+        headers=dict(request.headers),
+        body=raw_body,
+    )
 
     if matched_rule:
         log_request_event(decision="blocked", rule=matched_rule)
@@ -100,6 +106,13 @@ def health():
         service="SentinelShield",
         status="healthy"
     )
+
+
+@app.post("/contact")
+def contact():
+    return jsonify(
+        message="Contact message accepted for demonstration"
+    ), 201
 
 
 if __name__ == "__main__":

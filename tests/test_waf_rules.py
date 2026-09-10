@@ -30,6 +30,15 @@ class TestWafRules(unittest.TestCase):
         self.assertIsNotNone(rule)
         self.assertEqual(rule["id"], "PATH-001")
 
+    def test_detects_command_injection_indicator(self):
+        rule = inspect_request(
+            "/",
+            "",
+            body="message=hello%3Bwhoami"
+        )
+        self.assertIsNotNone(rule)
+        self.assertEqual(rule["id"], "CMDI-001")
+
 
 if __name__ == "__main__":
     unittest.main()

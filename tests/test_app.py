@@ -23,6 +23,26 @@ class TestSentinelShieldApp(unittest.TestCase):
             "RATE-001"
         )
 
+    def test_allows_normal_contact_message(self):
+        response = self.client.post(
+            "/contact",
+            data={"message": "hello"}
+        )
+
+        self.assertEqual(response.status_code, 201)
+
+    def test_blocks_command_indicator_in_post_body(self):
+        response = self.client.post(
+            "/contact",
+            data={"message": "hello;whoami"}
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(
+            response.get_json()["rule_id"],
+            "CMDI-001"
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
