@@ -24,7 +24,7 @@ All tests are performed only against the locally hosted SentinelShield lab appli
 
 | Local application URL | `http://127.0.0.1:5000` |
 
-| Test client | Browser, PowerShell, and authorized Kali VM |
+| Test client | Browser, PowerShell |
 
 | Security-event log | `logs/events.jsonl` |
 
@@ -114,13 +114,23 @@ Use a labeled test dataset to calculate:
 
 Detection rate = True Positives / (True Positives + False Negatives) × 100
 
+Example: you test 10 known malicious requests in your private lab. SentinelShield blocks 8 and allows 2.
+TP = 8
+FN = 2
+Detection rate = 8 / (8 + 2) × 100 = 80%
+
 False-positive rate = False Positives / (False Positives + True Negatives) × 100
+
+Then you test 20 harmless requests. It allows 18 but blocks 2 by mistake.
+TN = 18
+FP = 2
+False-positive rate = 2 / (2 + 18) × 100 = 10%
 
 ```
 
 
 
-Potential false positives can occur because SentinelShield uses simplified signature matching. Potential false negatives can occur when malicious requests do not resemble an existing rule.
+Potential false positives can occur because SentinelShield uses simplified signature matching. Potential false negatives can occur when malicious requests do not resemble an existing rule or in other words when hacker use diffrent method that is not match in WAF rule.
 
 
 
