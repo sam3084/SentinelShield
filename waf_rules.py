@@ -30,6 +30,15 @@ RULES = [
         ),
     },
     {
+        "id": "LFI-001",
+        "category": "local_file_inclusion",
+        "description": "Sensitive local-file inclusion indicator",
+        "pattern": re.compile(
+            r"(?:/etc/passwd|/proc/self/environ)",
+            re.IGNORECASE
+        ),
+    },
+    {
         "id": "CMDI-001",
         "category": "command_injection",
         "description": "Shell command chaining indicator",

@@ -30,6 +30,14 @@ class TestWafRules(unittest.TestCase):
         self.assertIsNotNone(rule)
         self.assertEqual(rule["id"], "PATH-001")
 
+    def test_detects_local_file_inclusion_indicator(self):
+        rule = inspect_request(
+            "/",
+            "file=%2Fetc%2Fpasswd"
+        )
+        self.assertIsNotNone(rule)
+        self.assertEqual(rule["id"], "LFI-001")
+
     def test_detects_command_injection_indicator(self):
         rule = inspect_request(
             "/",

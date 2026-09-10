@@ -43,6 +43,17 @@ class TestSentinelShieldApp(unittest.TestCase):
             "CMDI-001"
         )
 
+    def test_blocks_local_file_inclusion_indicator(self):
+        response = self.client.get(
+            "/?file=%2Fetc%2Fpasswd"
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(
+            response.get_json()["rule_id"],
+            "LFI-001"
+        )
+
     def test_dashboard_returns_success(self):
         response = self.client.get("/dashboard")
 
