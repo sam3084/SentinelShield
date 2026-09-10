@@ -10,6 +10,16 @@ RULES = [
             r"\bor\s+\d+\s*=\s*\d+",
             re.IGNORECASE
         ),
+    },
+
+    {
+        "id": "XSS-001",
+        "category": "cross_site_scripting",
+        "description": "Script-tag indicator",
+        "pattern": re.compile(
+            r"<\s*script\b",
+            re.IGNORECASE
+        ),
     }
 ]
 
