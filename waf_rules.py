@@ -20,6 +20,16 @@ RULES = [
             r"<\s*script\b",
             re.IGNORECASE
         ),
+    },
+
+    {
+        "id": "PATH-001",
+        "category": "directory_traversal",
+        "description": "Parent-directory traversal indicator",
+        "pattern": re.compile(
+            r"\.\.[\\/]",
+            re.IGNORECASE
+        ),
     }
 ]
 
