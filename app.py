@@ -6,6 +6,7 @@ from threading import Lock
 from time import monotonic
 
 from flask import Flask, jsonify, render_template, request
+from analytics import get_dashboard_summary
 
 from waf_rules import inspect_request
 
@@ -113,6 +114,11 @@ def contact():
     return jsonify(
         message="Contact message accepted for demonstration"
     ), 201
+
+@app.get("/dashboard")
+def dashboard():
+    summary = get_dashboard_summary(EVENT_LOG)
+    return render_template("dashboard.html", summary=summary)
 
 
 if __name__ == "__main__":

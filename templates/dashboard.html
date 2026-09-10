@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SentinelShield Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 32px; background: #f4f7fb; color: #172033; }
+    .cards { display: flex; gap: 16px; flex-wrap: wrap; }
+    .card { background: white; padding: 18px; border-radius: 8px; min-width: 160px; box-shadow: 0 1px 4px #cbd5e1; }
+    .number { font-size: 28px; font-weight: bold; }
+    table { width: 100%; border-collapse: collapse; background: white; margin-top: 12px; }
+    th, td { padding: 10px; border: 1px solid #dbe3ef; text-align: left; }
+    th { background: #e8eef8; }
+    .blocked { color: #b42318; font-weight: bold; }
+    .allowed { color: #067647; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>SentinelShield Security Dashboard</h1>
+  <p><a href="/">Back to application</a></p>
+
+  <div class="cards">
+    <div class="card">
+      <div>Total requests</div>
+      <div class="number">{{ summary.total_requests }}</div>
+    </div>
+    <div class="card">
+      <div>Allowed requests</div>
+      <div class="number">{{ summary.allowed_requests }}</div>
+    </div>
+    <div class="card">
+      <div>Blocked requests</div>
+      <div class="number">{{ summary.blocked_requests }}</div>
+    </div>
+  </div>
+
+  <h2>Blocked events by category</h2>
+  <table>
+    <tr><th>Category</th><th>Count</th></tr>
+    {% for category, count in summary.category_counts.items() %}
+    <tr><td>{{ category }}</td><td>{{ count }}</td></tr>
+    {% else %}
+    <tr><td colspan="2">No blocked events recorded.</td></tr>
+    {% endfor %}
+  </table>
+
+  <h2>Blocked events by IP address</h2>
+  <table>
+    <tr><th>IP address</th><th>Count</th></tr>
+    {% for ip_address, count in summary.ip_counts.items() %}
+    <tr><td>{{ ip_address }}</td><td>{{ count }}</td></tr>
+    {% else %}
+    <tr><td colspan="2">No blocked IP addresses recorded.</td></tr>
+    {% endfor %}
+  </table>
+
+  <h2>Most recent events</h2>
+  <table>
+    <tr>
+      <th>Timestamp (UTC)</th>
+      <th>IP</th>
+      <th>Path</th>
+      <th>Decision</th>
+      <th>Rule</th>
+      <th>Category</th>
+    </tr>
+    {% for event in summary.recent_events %}
+    <tr>
+      <td>{{ event.get("timestamp", "-") }}</td>
+      <td>{{ event.get("ip_address", "-") }}</td>
+      <td>{{ event.get("path", "-") }}</td>
+      <td class="{{ event.get("decision", "") }}">{{ event.get("decision", "-") }}</td>
+      <td>{{ event.get("rule_id", "-") or "-" }}</td>
+      <td>{{ event.get("category", "-") or "-" }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</body>
+</html>

@@ -43,6 +43,15 @@ class TestSentinelShieldApp(unittest.TestCase):
             "CMDI-001"
         )
 
+    def test_dashboard_returns_success(self):
+        response = self.client.get("/dashboard")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            b"SentinelShield Security Dashboard",
+            response.data
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
