@@ -1,6 +1,9 @@
 import json
+from collections import defaultdict, deque
 from datetime import datetime, timezone
 from pathlib import Path
+from threading import Lock
+from time import monotonic
 
 from flask import Flask, jsonify, render_template, request
 
@@ -12,9 +15,38 @@ LOG_DIRECTORY = Path(__file__).parent / "logs"
 LOG_DIRECTORY.mkdir(exist_ok=True)
 EVENT_LOG = LOG_DIRECTORY / "events.jsonl"
 
+RATE_LIMIT_MAX_REQUESTS = 5
+RATE_LIMIT_WINDOW_SECONDS = 60
+
+request_history = defaultdict(deque)
+request_history_lock = Lock()
+
+RATE_LIMIT_RULE = {
+    "id": "RATE-001",
+    "category": "rate_limit",
+}
+
 
 def get_client_ip():
     return request.remote_addr or "unknown"
+
+
+def is_rate_limited(client_ip):
+    """Return True when an IP exceeds the request limit in the time window."""
+    current_time = monotonic()
+    cutoff_time = current_time - RATE_LIMIT_WINDOW_SECONDS
+
+    with request_history_lock:
+        history = request_history[client_ip]
+
+        while history and history[0] <= cutoff_time:
+            history.popleft()
+
+        if len(history) >= RATE_LIMIT_MAX_REQUESTS:
+            return True
+
+        history.append(current_time)
+        return False
 
 
 def log_request_event(decision="allowed", rule=None):
@@ -35,6 +67,15 @@ def log_request_event(decision="allowed", rule=None):
 
 @app.before_request
 def inspect_incoming_request():
+    client_ip = get_client_ip()
+
+    if is_rate_limited(client_ip):
+        log_request_event(decision="blocked", rule=RATE_LIMIT_RULE)
+        return jsonify(
+            error="Too many requests",
+            rule_id=RATE_LIMIT_RULE["id"]
+        ), 429
+
     raw_query = request.query_string.decode("utf-8", errors="replace")
     matched_rule = inspect_request(request.path, raw_query)
 
