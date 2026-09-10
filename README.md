@@ -128,7 +128,7 @@ SentinelShield/
 
 ```powershell
 
-git clone <YOUR-REPOSITORY-URL>
+git clone https://github.com/sam3084/SentinelShield.git
 
 cd SentinelShield
 
